@@ -699,6 +699,10 @@ html:not([data-theme="dark"]) .icon-moon { display: none; }
   animation: fade-in 0.2s ease both;
 }
 
+.modal-backdrop[hidden] {
+  display: none;
+}
+
 @keyframes fade-in {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -933,6 +937,10 @@ html:not([data-theme="dark"]) .icon-moon { display: none; }
   font-size: 13px;
   z-index: 200;
   animation: fade-up 0.25s ease both;
+}
+
+.toast[hidden] {
+  display: none;
 }
 
 /* ---------- 滚动条 ---------- */

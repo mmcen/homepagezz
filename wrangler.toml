@@ -1,0 +1,10 @@
+# Cloudflare Workers 配置
+# 使用 Workers Static Assets 自动托管 public/ 目录下的静态文件
+
+name = "glass-home"
+main = "./worker/index.js"
+compatibility_date = "2024-12-01"
+
+[assets]
+directory = "./public"
+not_found_handling = "single-page-application"

@@ -1,0 +1,18 @@
+{
+  "name": "glass-home",
+  "version": "1.0.0",
+  "description": "简约毛玻璃风格的浏览器主页，可部署于 Cloudflare Workers 或本地运行",
+  "private": true,
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js",
+    "deploy": "wrangler deploy",
+    "dev:worker": "wrangler dev"
+  },
+  "engines": {
+    "node": ">=16"
+  },
+  "devDependencies": {
+    "wrangler": "^3.78.0"
+  }
+}

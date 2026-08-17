@@ -42,8 +42,8 @@
       </nav>
 
       <div class="sidebar-section">
-        <div class="section-title">快捷链接</div>
-        <div class="quick-links" id="quick-links"></div>
+        <div class="section-title">分类</div>
+        <div class="category-list" id="category-list"></div>
       </div>
 
       <div class="sidebar-footer">
@@ -70,25 +70,27 @@
           <div class="clock-date" id="clock-date">2026年08月17日 星期一</div>
         </div>
 
-        <form class="search-bar glass" id="search-form" role="search">
-          <div class="engine-select" id="engine-select" tabindex="0" aria-label="选择搜索引擎">
-            <span class="engine-label" id="engine-label">Google</span>
-            <svg class="engine-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
-            <div class="engine-menu" id="engine-menu">
-              <button type="button" class="engine-option active" data-engine="google">Google</button>
-              <button type="button" class="engine-option" data-engine="bing">Bing</button>
-              <button type="button" class="engine-option" data-engine="baidu">百度</button>
-              <button type="button" class="engine-option" data-engine="github">GitHub</button>
-              <button type="button" class="engine-option" data-engine="duckduckgo">DuckDuckGo</button>
+        <div class="home-right">
+          <form class="search-bar glass" id="search-form" role="search">
+            <div class="engine-select" id="engine-select" tabindex="0" aria-label="选择搜索引擎">
+              <span class="engine-label" id="engine-label">Google</span>
+              <svg class="engine-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+              <div class="engine-menu" id="engine-menu">
+                <button type="button" class="engine-option active" data-engine="google">Google</button>
+                <button type="button" class="engine-option" data-engine="bing">Bing</button>
+                <button type="button" class="engine-option" data-engine="baidu">百度</button>
+                <button type="button" class="engine-option" data-engine="github">GitHub</button>
+                <button type="button" class="engine-option" data-engine="duckduckgo">DuckDuckGo</button>
+              </div>
             </div>
-          </div>
-          <input type="search" id="search-input" class="search-input" placeholder="搜索，或输入网址…" autocomplete="off" spellcheck="false">
-          <button type="submit" class="search-btn" aria-label="搜索">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-          </button>
-        </form>
+            <input type="search" id="search-input" class="search-input" placeholder="搜索，或输入网址…" autocomplete="off" spellcheck="false">
+            <button type="submit" class="search-btn" aria-label="搜索">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+            </button>
+          </form>
 
-        <div class="bookmark-group" id="bookmark-group-home"></div>
+          <div class="bookmark-group" id="bookmark-group-home"></div>
+        </div>
       </section>
 
       <section class="view" id="view-bookmarks">

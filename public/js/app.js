@@ -38,11 +38,15 @@
   var state = {
     theme: "dark",
     engine: "google",
+    category: "",
     bookmarks: DEFAULT_BOOKMARKS.slice()
   };
 
   var els = {};
   var toastTimer = null;
+  var apiAvailable = false;
+  var API_PATH = "/api/bookmarks";
+  var SYNC_FLAG_KEY = "glass-home-synced";
 
   function loadState() {
     try {
@@ -59,6 +63,61 @@
 
   function saveState() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+
+  function categoriesOf(bookmarks) {
+    var seen = {};
+    var list = [];
+    bookmarks.forEach(function (bm) {
+      var cat = bm.category && bm.category.trim() ? bm.category.trim() : "其他";
+      if (!seen[cat]) {
+        seen[cat] = 1;
+        list.push(cat);
+      }
+    });
+    return list;
+  }
+
+  function bookmarksInCategory(bookmarks, category) {
+    if (!category) return bookmarks;
+    return bookmarks.filter(function (bm) {
+      var cat = bm.category && bm.category.trim() ? bm.category.trim() : "其他";
+      return cat === category;
+    });
+  }
+
+  function saveToApi() {
+    if (!apiAvailable) return;
+    fetch(API_PATH, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(state.bookmarks)
+    }).catch(function () {});
+  }
+
+  function syncFromApi() {
+    fetch(API_PATH, { method: "GET", headers: { Accept: "application/json" } })
+      .then(function (res) {
+        if (!res.ok) return null;
+        return res.json();
+      })
+      .then(function (remote) {
+        if (!Array.isArray(remote)) return;
+        apiAvailable = true;
+        var synced = localStorage.getItem(SYNC_FLAG_KEY) === "1";
+        if (remote.length) {
+          state.bookmarks = remote;
+          localStorage.setItem(SYNC_FLAG_KEY, "1");
+        } else if (!synced && state.bookmarks.length) {
+          localStorage.setItem(SYNC_FLAG_KEY, "1");
+          saveToApi();
+        } else {
+          state.bookmarks = [];
+        }
+        saveState();
+        renderAll();
+        toast("书签已从云端同步");
+      });
   }
 
   function $id(id) {
@@ -185,22 +244,46 @@
     });
   }
 
-  function renderQuickLinks() {
-    els.quickLinks.innerHTML = "";
-    state.bookmarks.slice(0, 8).forEach(function (bm, index) {
-      var colors = colorForIndex(index);
-      var a = document.createElement("a");
-      a.className = "quick-link";
-      a.href = bm.url;
-      a.target = "_blank";
-      a.rel = "noopener noreferrer";
-      a.title = bm.name;
-      a.innerHTML =
-        '<span class="ql-icon" style="background:linear-gradient(135deg,' + colors[0] + ',' + colors[1] + ')">' +
-        escapeHtml(initialOf(bm.name)) +
-        "</span>" +
-        '<span class="ql-name">' + escapeHtml(bm.name) + "</span>";
-      els.quickLinks.appendChild(a);
+  function renderCategories() {
+    els.categoryList.innerHTML = "";
+    var cats = categoriesOf(state.bookmarks);
+
+    function isActive(cat) {
+      return state.category === cat;
+    }
+
+    function addItem(cat, count) {
+      var colors = colorForIndex(cats.indexOf(cat) + 1);
+      var isAll = cat === "全部";
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "cat-item" + (isActive(isAll ? "" : cat) ? " active" : "");
+      btn.dataset.cat = cat;
+      btn.innerHTML =
+        '<span class="cat-dot" style="color:' + colors[0] + ';background:' + colors[0] + '"></span>' +
+        '<span class="cat-name">' + escapeHtml(cat) + "</span>" +
+        '<span class="cat-count">' + count + "</span>";
+      btn.addEventListener("click", function () {
+        state.category = isAll ? "" : cat;
+        renderCategories();
+        switchView("home");
+        renderBookmarks(els.groupHome, bookmarksInCategory(state.bookmarks, state.category));
+      });
+      els.categoryList.appendChild(btn);
+    }
+
+    addItem("全部", state.bookmarks.length);
+    cats.forEach(function (cat) {
+      addItem(cat, bookmarksInCategory(state.bookmarks, cat).length);
+    });
+  }
+
+  function switchView(name) {
+    document.querySelectorAll(".nav-item").forEach(function (n) {
+      n.classList.toggle("active", n.dataset.view === name);
+    });
+    document.querySelectorAll(".view").forEach(function (v) {
+      v.classList.toggle("active", v.id === "view-" + name);
     });
   }
 
@@ -258,8 +341,8 @@
     renderClock();
     applyTheme();
     renderEngineMenus();
-    renderQuickLinks();
-    renderBookmarks(els.groupHome, state.bookmarks);
+    renderCategories();
+    renderBookmarks(els.groupHome, bookmarksInCategory(state.bookmarks, state.category));
     renderBookmarks(els.groupAll, state.bookmarks);
     renderManageList();
   }
@@ -279,11 +362,6 @@
     modal.hidden = true;
   }
 
-  function toggleModal(backdrop, force) {
-    var show = force !== undefined ? force : backdrop.hidden;
-    backdrop.hidden = !show;
-  }
-
   function openEditModal(bm) {
     els.bmId.value = bm ? bm.id : "";
     els.bmName.value = bm ? bm.name : "";
@@ -301,6 +379,7 @@
   function addBookmark(data) {
     state.bookmarks.push({ id: "b" + Date.now(), name: data.name, url: data.url, category: data.category || "" });
     saveState();
+    saveToApi();
     renderAll();
     toast("书签已添加");
   }
@@ -312,6 +391,7 @@
     bm.url = data.url;
     bm.category = data.category || "";
     saveState();
+    saveToApi();
     renderAll();
     toast("书签已更新");
   }
@@ -319,6 +399,7 @@
   function removeBookmark(id) {
     state.bookmarks = state.bookmarks.filter(function (b) { return b.id !== id; });
     saveState();
+    saveToApi();
     renderAll();
     toast("书签已删除");
   }
@@ -326,7 +407,9 @@
   function resetAll() {
     state.bookmarks = DEFAULT_BOOKMARKS.slice();
     state.engine = "google";
+    state.category = "";
     saveState();
+    saveToApi();
     renderAll();
     toast("已恢复默认设置");
   }
@@ -383,12 +466,9 @@
 
     document.querySelectorAll(".nav-item").forEach(function (btn) {
       btn.addEventListener("click", function () {
-        document.querySelectorAll(".nav-item").forEach(function (n) { n.classList.remove("active"); });
-        btn.classList.add("active");
         var view = btn.dataset.view;
         if (!view) return;
-        document.querySelectorAll(".view").forEach(function (v) { v.classList.remove("active"); });
-        $id("view-" + view).classList.add("active");
+        switchView(view);
       });
     });
 
@@ -445,7 +525,7 @@
       clockDate: $id("clock-date"),
       dateChip: $id("date-chip"),
       greeting: $id("greeting"),
-      quickLinks: $id("quick-links"),
+      categoryList: $id("category-list"),
       engineSelect: $id("engine-select"),
       engineLabel: $id("engine-label"),
       searchForm: $id("search-form"),
@@ -479,6 +559,7 @@
     bindEvents();
     renderAll();
     setInterval(renderClock, 1000);
+    syncFromApi();
   }
 
   domReady(init);

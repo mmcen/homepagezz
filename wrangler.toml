@@ -1,5 +1,6 @@
 # Cloudflare Workers 配置
 # 使用 Workers Static Assets 自动托管 public/ 目录下的静态文件
+# 绑定 KV 命名空间 BOOKMARKS 用于跨设备持久化书签
 
 name = "glass-home"
 main = "./worker/index.js"
@@ -8,3 +9,8 @@ compatibility_date = "2024-12-01"
 [assets]
 directory = "./public"
 not_found_handling = "single-page-application"
+
+[[kv_namespaces]]
+binding = "BOOKMARKS"
+id = "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"
+preview_id = "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"

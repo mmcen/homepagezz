@@ -2,7 +2,7 @@
   --radius-lg: 24px;
   --radius-md: 16px;
   --radius-sm: 10px;
-  --sidebar-w: 240px;
+  --sidebar-w: 280px;
   --glass-bg: rgba(255, 255, 255, 0.42);
   --glass-border: rgba(255, 255, 255, 0.55);
   --glass-shadow: 0 8px 32px rgba(31, 38, 135, 0.12);
@@ -110,10 +110,9 @@ html[data-theme="dark"] .bg-blobs {
 .layout {
   display: flex;
   gap: 24px;
-  max-width: 1720px;
-  margin: 0 auto;
-  padding: 20px;
-  min-height: calc(100vh - 40px);
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
 }
 
 .glass {
@@ -130,11 +129,12 @@ html[data-theme="dark"] .bg-blobs {
   width: var(--sidebar-w);
   flex-shrink: 0;
   position: sticky;
-  top: 20px;
-  height: calc(100vh - 40px);
+  top: 0;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   padding: 20px 14px;
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
   animation: slide-in 0.5s ease both;
 }
 
@@ -326,6 +326,9 @@ html:not([data-theme="dark"]) .icon-moon { display: none; }
   display: flex;
   flex-direction: column;
   min-width: 0;
+  max-width: 1480px;
+  margin: 0 auto;
+  padding: 20px;
 }
 
 .topbar {
@@ -994,6 +997,7 @@ html:not([data-theme="dark"]) .icon-moon { display: none; }
     align-items: center;
     gap: 8px;
     padding: 12px;
+    border-radius: var(--radius-lg);
   }
 
   .sidebar-brand {
@@ -1023,6 +1027,8 @@ html:not([data-theme="dark"]) .icon-moon { display: none; }
 
   .main {
     min-height: 70vh;
+    max-width: none;
+    padding: 0;
   }
 
   .clock-wrap {
